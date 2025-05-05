@@ -15,6 +15,8 @@
     <button onclick="generateNews()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200">Generate News</button>
 
     <div id="newsOutput" class="bg-gray-800 p-4 rounded shadow-lg text-sm max-h-[60vh] overflow-y-auto whitespace-pre-line"></div>
+
+    <button id="copyBtn" onclick="copyToClipboard()" class="hidden w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-200">Copy News</button>
   </div>
 
   <script>
@@ -25,9 +27,11 @@
     async function generateNews() {
       const query = document.getElementById('searchInput').value.trim();
       const output = document.getElementById('newsOutput');
+      const copyBtn = document.getElementById('copyBtn');
       if (!query) return output.innerText = 'Topic daal bhai...';
 
       output.innerHTML = 'Bhaukaal loading...';
+      copyBtn.classList.add('hidden');
 
       try {
         const searchUrl = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`;
@@ -52,11 +56,22 @@
         const geminiData = await geminiRes.json();
         const responseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "Kuch error aagaya bhai!";
         output.innerText = responseText;
+        copyBtn.classList.remove('hidden');
 
       } catch (err) {
         output.innerText = "Internet off hai kya bhai? Ya kuch aur error aaya!";
         console.error(err);
       }
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('newsOutput').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied bhai! Paste karle kahin bhi.");
+      }).catch(err => {
+        alert("Copy failed bhai. Manual kaam karna padega.");
+        console.error(err);
+      });
     }
   </script>
 </body>
